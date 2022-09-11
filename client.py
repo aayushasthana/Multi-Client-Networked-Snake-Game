@@ -1,6 +1,7 @@
 import socket
 import logging
 import time
+import datetime
 import pygame
 from pygame.locals import *
 import pickle
@@ -8,6 +9,9 @@ import math
 import random
 import copy
 from command import Command
+
+import argparse
+
 
 
 from network import *
@@ -46,6 +50,8 @@ def client_program():
     clock = pygame.time.Clock()
     last = 0  # control the refresh rate
     loop_count = 0
+    old_time = datetime.datetime.now()
+    network_enabled = False
     
     while run :
     
@@ -55,35 +61,42 @@ def client_program():
         #if now - last >= REFRESH_RATE :
         clock.tick(FPS)
         try:
-            # Get the details of the game
-            request_cmd = Command(CMD_GET_GAME ,b"None")
-            network.send_cmd(request_cmd)
-            
-            response_cmd = network.recv_cmd()
-            
-
-            # Update the local  game
-            
-            local_game = pickle.loads(response_cmd.payload)
-            
-            
-            
-            
-            # Update the local game with server updates for other snakes
-            # Move the local snake forward
-            gamewindow.tick(local_game)
-            
-            temp_snake = gamewindow.game.get_snake(client_id)
-            cmd = Command(CMD_UPDATE_SNAKE, pickle.dumps(temp_snake))
-            network.send_cmd(cmd)
-
-            if gamewindow.game.delete_fruit[0] != -1 and gamewindow.game.delete_fruit[1] != -1:
-                cmd = Command(CMD_DELETE_FRUIT,pickle.dumps(gamewindow.game.delete_fruit))
+            # for the delay time, dont send update to the server
+            network_enabled = False
+            delta_ms = (datetime.datetime.now()-old_time).total_seconds() * 1000
+            print("delta {}".format(delta_ms))
+            if (delay < delta_ms ):
+                old_time = datetime.datetime.now()
+                network_enabled = True
+                
+            if network_enabled: 
+                # Get the details of the game from server
+                request_cmd = Command(CMD_GET_GAME ,b"None")
+                network.send_cmd(request_cmd)
+                response_cmd = network.recv_cmd()
+                # Update the local game with server updates for other snakes
+                # Move the local snake forward
+                local_game = pickle.loads(response_cmd.payload)
+                print("server update")
+                gamewindow.tick(local_game)
+                
+                #send updated my_snake position to the server
+                temp_snake = gamewindow.game.get_snake(client_id)
+                cmd = Command(CMD_UPDATE_SNAKE, pickle.dumps(temp_snake))
                 network.send_cmd(cmd)
+                #
+                if gamewindow.game.delete_fruit[0] != -1 and gamewindow.game.delete_fruit[1] != -1:
+                    cmd = Command(CMD_DELETE_FRUIT,pickle.dumps(gamewindow.game.delete_fruit))
+                    network.send_cmd(cmd)
            
+            else:
+                print("****** No server update")
+                gamewindow.tick_no_server_update()
+            
+            
             
             # Refresh the game window graphics
-            gamewindow.refresh()   # blit the snakes
+            gamewindow.refresh(delay)   # blit the snakes
             pygame.display.flip()  # render the snakes
             
         except Exception as e:
@@ -105,7 +118,14 @@ def create_direction_matrix():
 
 
 if __name__ == '__main__':
-    create_direction_matrix()
+    
+   parser = argparse.ArgumentParser(description = "Snake game client")
+   parser.add_argument("-d", "--delay", help = "Example: --delay 60", required = False, default = "0")
+   argument = parser.parse_args()
+   if argument.delay:
+    delay = int(argument.delay)
+    if delay > 0:
+        delay += 0
     
     globals.init_globals("c")
     

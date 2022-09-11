@@ -123,7 +123,7 @@ class Game:
                 print("Fruit collided head:{} fruit:{}".format(self.getMySnake().head, fruit))
                 self.getMySnake().score += 1
                 self.getMySnake().grow()
-                print("Grow {} {} ".format(len(self.getMySnake().blocks), self.getMySnake().blocks))
+                #print("Grow {} {} ".format(len(self.getMySnake().blocks), self.getMySnake().blocks))
                 self.delete_fruit = fruit
                 self.fruit_list.remove(fruit)
                 break
@@ -192,12 +192,24 @@ class Game:
     def tick(self) :
         
         self.update_snakes()
+            
         if (self.getMySnake().isAlive):
             
             self.get_snake(self.my_snake_id).move_front()
             #time.sleep(0.1)
             #self.get_snake(self.my_snake_id).nextMove_f1(self.getMySnake().head, self.wall_list, self.fruit_list)
+            #self.get_snake(self.my_snake_id).move_shortest_distance2(self.getMySnake().head, self.fruit_list)
             self.get_snake(self.my_snake_id).nextMove_f2(self.getMySnake().head, self.wall_list, self.fruit_list, self.snake_list, self.my_snake_id)
+    
+    def tick_no_server_update(self) :
+        
+        self.update_snakes()
+            
+        if (self.getMySnake().isAlive):
+            self.get_snake(self.my_snake_id).move_front()
+            self.get_snake(self.my_snake_id).nextMove_f2(self.getMySnake().head, self.wall_list, self.fruit_list, self.snake_list, self.my_snake_id)
+            #self.get_snake(self.my_snake_id).move_shortest_distance2(self.getMySnake().head, self.fruit_list)
+                
         
     def getMySnake(self):
         for snake in self.snake_list:

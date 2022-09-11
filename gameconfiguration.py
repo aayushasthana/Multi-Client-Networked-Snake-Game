@@ -115,3 +115,5 @@ DEBUG_GAME = True
 DEBUG_SNAKE = True
 DEBUG_SERVER_PROGRAM = True
 DEBUG_NETWORK = True
+
+# delay settings

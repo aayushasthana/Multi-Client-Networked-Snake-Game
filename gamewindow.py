@@ -51,9 +51,11 @@ class GameWindow:
         self.canvas.blit(self.my_snake_block_image,(0*BLOCK_SIZE, (BLOCK_COLS-1)*BLOCK_SIZE))
         self.canvas.blit(self.my_snake_block_image,(1*BLOCK_SIZE, (BLOCK_COLS-2)*BLOCK_SIZE))
         self.canvas.blit(self.my_snake_block_image,(1*BLOCK_SIZE, (BLOCK_COLS-1)*BLOCK_SIZE))
-
-        self.font = pygame.font.Font('freesansbold.ttf', 20)
-    
+        
+        self.font = pygame.font.Font('freesansbold.ttf', 15)
+        
+        
+        
     
 
     def add_my_snake(self,my_snake_id):
@@ -92,8 +94,11 @@ class GameWindow:
         
         self.game.tick()
 
+    def tick_no_server_update(self):
+        self.game.tick_no_server_update()
+        
 
-    def refresh(self):
+    def refresh(self,delay):
         
         
         self.canvas.fill(BLACK)   # painting background
@@ -104,7 +109,7 @@ class GameWindow:
             self.blit_game_wall()
             self.blit_fruits()
             self.blit_all_snakes()
-            self.blit_score()
+            self.blit_score(delay)
 
     def blit_game_over(self):
         gameovertext = "GAME OVER!"
@@ -148,10 +153,15 @@ class GameWindow:
            self.canvas.blit(self.fruit_block_image,(fruit[0]*BLOCK_SIZE, fruit[1]*BLOCK_SIZE))
 
     
-    def blit_score(self):
-        scorestring = 'Scores:'
+    def blit_score(self, delay):
+        scorestring = 'Scores'
+        if (delay):
+            scorestring = "Scores "+ str(delay) + "ms"
+        else:
+            scorestring = "Scores "
+            
         text = self.font.render(scorestring, True, WHITE, BLACK)
-        self.canvas.blit(text,(2*BLOCK_SIZE, 2*BLOCK_SIZE))
+        self.canvas.blit(text,(RIGHTWALL_X+5, 0))
         i = 0
         for snake in self.game.snake_list:
             snake_score_text = " {} ".format(snake.score)

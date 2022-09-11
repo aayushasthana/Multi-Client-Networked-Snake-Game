@@ -9,6 +9,7 @@ import copy
 
 from network import *
 from globals import *
+import signal
     
 
 
@@ -18,6 +19,7 @@ def server_program(hostname, port, game):
     server_socket = socket.socket()     
 
     server_socket.bind((hostname, port))  # bind host address and port together
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     clientID = -1; # one per client
 
 
@@ -103,7 +105,16 @@ def threaded_client(network, client_id,game):
         network.close()
 
 
+def handler(signum, frame):
+    res = input("Ctrl-c was pressed. Do you really want to exit? y/n ")
+    if res == 'y':
+        sys.exit(0)
+ 
+
+
 if __name__ == '__main__':
     globals.init_globals("s")
     game = Game(-1)
+    #signal.signal(signal.SIGINT, handler)
+    
     server_program(SERVER,PORT,game)
