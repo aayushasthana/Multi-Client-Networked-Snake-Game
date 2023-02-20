@@ -1,2 +1,2 @@
-#Made for Polygence Research Paper: "Analyzing the Impact of Network Latencies on Graphic Jitters and Fairness in Multiplayer
+# Made for Polygence Research Paper: "Analyzing the Impact of Network Latencies on Graphic Jitters and Fairness in Multiplayer
 Online Games"
